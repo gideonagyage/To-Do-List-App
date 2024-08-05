@@ -1,20 +1,26 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Modal, Button, Form, FormControl, Dropdown, DropdownButton } from "react-bootstrap";
+import {
+  Modal,
+  Form,
+  FormControl,
+  Dropdown,
+  DropdownButton,
+} from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faPencil, faAdd } from "@fortawesome/free-solid-svg-icons";
 
 function TodoListApp() {
-  const [todos, setTodos] = useState(loadTodosFromLocalStorage()); // Load todos from local storage
-  const [showModal, setShowModal] = useState(false); // Show Model
-  const [showDeleteModal, setShowDeleteModal] = useState(false); // Delete modal state
-  const [showTodoModal, setShowTodoModal] = useState(false); // Show details modal state
-  const [selectedTodo, setSelectedTodo] = useState(null); // Store the selected todo
+  const [todos, setTodos] = useState(loadTodosFromLocalStorage());
+  const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showTodoModal, setShowTodoModal] = useState(false);
+  const [selectedTodo, setSelectedTodo] = useState(null);
   const [newTodoTitle, setNewTodoTitle] = useState("");
-  const [newTodoStatus, setNewTodoStatus] = useState("Uncompleted"); // Default status
+  const [newTodoStatus, setNewTodoStatus] = useState("Uncompleted");
   const [editingTodo, setEditingTodo] = useState(null);
-  const [showErrorMessage, setShowErrorMessage] = useState(false); // Error message state
-  const [todoToDeleteId, setTodoToDeleteId] = useState(null); // ID of todo to delete
+  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [todoToDeleteId, setTodoToDeleteId] = useState(null);
 
   // Load todos from local storage
   function loadTodosFromLocalStorage() {
@@ -44,6 +50,7 @@ function TodoListApp() {
     setTodos([...todos, newTodo]);
     saveTodosToLocalStorage([...todos, newTodo]);
 
+    setEditingTodo(null);
     setNewTodoTitle("");
     setNewTodoStatus("Uncompleted"); // Reset status after adding
     setShowModal(false);
@@ -124,24 +131,146 @@ function TodoListApp() {
   };
 
   return (
-    <div className="container mt-5">
-      <h2>Todo List App</h2>
+    <div className="container mt-5 mb-5 d-flex flex-column justify-content-center align-items-center">
+      <div className="top-card mb-3">
+        <div className="row mx-3">
+          <h3 className="col text-start text-white">Todo List App</h3>
+          {/* Add New Task button */}
+          <FontAwesomeIcon
+            onClick={() => setShowModal(true)}
+            icon={faAdd}
+            className="text-end me-2 btn-add"
+            size="2x"
+            title="Add New Task"
+          />
+        </div>
+      </div>
 
-      {/* Add New Task Button */}
-      <Button variant="primary" onClick={() => setShowModal(true)}>
-        Add New Task
-      </Button>
+      {/* Uncompleted & Completed List */}
+      <div className="main-card d-flex flex-column justify-content-center align-items-center">
+        {/* Uncompleted Todo List */}
+        <div className="card inner-card border-0 inner-card w-100">
+          <ul className="list-group list-group-flush mt-3">
+            {todos.filter((todo) => todo.status === "Uncompleted").length ===
+            0 ? (
+              <h6 className="text-center text-white">Your tasks will show here</h6>
+            ) : (
+              <>
+                <h6 className="text-center text-white">Uncompleted Tasks</h6>
+                {todos
+                  .filter((todo) => todo.status === "Uncompleted")
+                  .map((todo) => (
+                    <li
+                      key={todo.id}
+                      className={`list-group-item d-flex justify-content-between align-items-center bg-transparent border-0 text-white`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={todo.status === "Completed"}
+                        onChange={() => handleToggleComplete(todo.id)}
+                        className="me-2 form-check-input"
+                      />
+
+                      <span
+                        className="truncate text-white text-start"
+                        onClick={() => handleShowTodo(todo)} // Pass the todo to the function
+                        style={{
+                          textDecoration:
+                            todo.status === "Completed"
+                              ? "line-through"
+                              : "none",
+                        }}
+                      >
+                        {todo.title}
+                      </span>
+
+                      <FontAwesomeIcon
+                        icon={faPencil}
+                        onClick={() => handleEditTodo(todo)}
+                        className="mx-4 list-icon"
+                        title="Edit Task"
+                      />
+                      <FontAwesomeIcon
+                        icon={faTrash}
+                        onClick={() => handleDeleteTodo(todo.id)}
+                        className="me-2 list-icon"
+                        title="Delete Task"
+                      />
+                    </li>
+                  ))}
+              </>
+            )}
+          </ul>
+        </div>
+
+        {/* Completed Todo List */}
+        <div className="card inner-card border-0 inner-card w-100">
+          <ul className="list-group list-group-flush mt-3">
+            {todos.filter((todo) => todo.status === "Completed").length ===
+            0 ? (
+              <>
+                <h6 className="text-center text-white">
+                  No task completed yet
+                </h6>
+              </>
+            ) : (
+              <>
+                <h6 className="text-center text-white">Completed Tasks</h6>
+                {todos
+                  .filter((todo) => todo.status === "Completed")
+                  .map((todo) => (
+                    <li
+                      key={todo.id}
+                      className={`list-group-item d-flex justify-content-between align-items-center bg-transparent border-0 text-white`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={todo.status === "Completed"}
+                        onChange={() => handleToggleComplete(todo.id)}
+                        className="me-2 form-check-input"
+                      />
+                      <span
+                        className="truncate text-white text-start"
+                        onClick={() => handleShowTodo(todo)} // Pass the todo to the function
+                        style={{ textDecoration: "line-through" }}
+                      >
+                        {todo.title}
+                      </span>
+
+                      <FontAwesomeIcon
+                        icon={faPencil}
+                        onClick={() => handleEditTodo(todo)}
+                        className="mx-4 list-icon"
+                        title="Edit Task"
+                      />
+                      <FontAwesomeIcon
+                        icon={faTrash}
+                        onClick={() => handleDeleteTodo(todo.id)}
+                        className="me-2 list-icon"
+                        title="Delete Task"
+                      />
+                    </li>
+                  ))}
+              </>
+            )}
+          </ul>
+        </div>
+      </div>
 
       {/* Modal for showing selected Task */}
       <Modal show={showTodoModal} onHide={() => setShowTodoModal(false)}>
-        <Modal.Header closeButton>
+        <Modal.Header className="modal-bg" closeButton>
           <Modal.Title>Task Details</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className="modal-bg modal-body">
           {selectedTodo && (
             <>
-              <p>Title: {selectedTodo.title}</p>
-              <p>Status: {selectedTodo.status}</p>
+              <h4 className="fw-bold fs-5">{selectedTodo.title}</h4>
+              <br />
+              <span className="fs-6 fw-medium">
+                Status of Task:{" "}
+                <p className="fw-normal"> {selectedTodo.status}</p>
+              </span>
             </>
           )}
         </Modal.Body>
@@ -149,27 +278,38 @@ function TodoListApp() {
 
       {/* Modal for Adding/Editing Tasks */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
+        <Modal.Header className="modal-bg" closeButton>
           <Modal.Title>
             {editingTodo ? "Edit Task" : "Add New Task"}
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className="modal-bg">
           <Form>
-            <FormControl
-              placeholder="Task Title"
-              value={newTodoTitle}
-              onChange={(e) => setNewTodoTitle(e.target.value)}
-            />
+            {/* Render input fields only if adding a new task */}
+            {!editingTodo && (
+              <FormControl
+                placeholder="Task Title"
+                value={newTodoTitle}
+                onChange={(e) => setNewTodoTitle(e.target.value)}
+              />
+            )}
+
+            {/* Render input fields only if editing a task */}
+            {editingTodo && (
+              <FormControl
+                placeholder="Task Title"
+                value={newTodoTitle}
+                onChange={(e) => setNewTodoTitle(e.target.value)}
+              />
+            )}
             {showErrorMessage && (
               <div className="text-danger mt-1">Please enter a task title.</div>
             )}
 
             <DropdownButton
               id="dropdown-basic-button"
-              className="mt-3"
+              className="mt-3 dropdown-list btn-success"
               title={newTodoStatus}
-              variant="outline-secondary"
             >
               <Dropdown.Item onClick={() => setNewTodoStatus("Uncompleted")}>
                 Uncompleted
@@ -180,134 +320,39 @@ function TodoListApp() {
             </DropdownButton>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+        <Modal.Footer className="modal-bg">
+          <button className="btn-cancel" onClick={() => setShowModal(false)}>
             Cancel
-          </Button>
+          </button>
           {editingTodo ? (
-            <Button variant="primary" onClick={handleSaveEdit}>
+            <button className="btn-save" onClick={handleSaveEdit}>
               Save
-            </Button>
+            </button>
           ) : (
-            <Button variant="primary" onClick={handleAddTodo}>
+            <button className="btn-save" onClick={handleAddTodo}>
               Add
-            </Button>
+            </button>
           )}
         </Modal.Footer>
       </Modal>
 
       {/* Delete Confirmation Modal */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-        <Modal.Header closeButton>
+        <Modal.Header className="modal-bg" closeButton>
           <Modal.Title>Delete Task</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Are you sure you want to delete this task?</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCancelDelete}>
+        <Modal.Body className="modal-bg">
+          Are you sure you want to delete this task?
+        </Modal.Body>
+        <Modal.Footer className="modal-bg">
+          <button className="btn-cancel" onClick={handleCancelDelete}>
             Cancel
-          </Button>
-          <Button variant="danger" onClick={handleConfirmDelete}>
+          </button>
+          <button className="btn-save" onClick={handleConfirmDelete}>
             Delete
-          </Button>
+          </button>
         </Modal.Footer>
       </Modal>
-
-      {/* Uncompleted Todo List */}
-      <ul className="list-group list-group-flush mt-3">
-        {todos.filter((todo) => todo.status === "Uncompleted").length === 0 ? (
-          <h3>Add a new task to get started!</h3>
-        ) : (
-          <>
-            <h3>Uncompleted Tasks</h3>
-            {todos
-              .filter((todo) => todo.status === "Uncompleted")
-              .map((todo) => (
-                <li
-                  key={todo.id}
-                  className={`list-group-item d-flex justify-content-between align-items-center`}
-                >
-                  <div>
-                    <input
-                      type="checkbox"
-                      checked={todo.status === "Completed"}
-                      onChange={() => handleToggleComplete(todo.id)}
-                      className="me-2"
-                    />
-
-                    <span
-                      className="btn bg-transparent border-0"
-                      onClick={() => handleShowTodo(todo)} // Pass the todo to the function
-                      style={{
-                        textDecoration:
-                          todo.status === "Completed" ? "line-through" : "none",
-                      }}
-                    >
-                      {todo.title}
-                    </span>
-                  </div>
-                  <div>
-                    <FontAwesomeIcon
-                      icon={faEdit}
-                      className="me-2"
-                      onClick={() => handleEditTodo(todo)}
-                    />
-                    <FontAwesomeIcon
-                      icon={faTrash}
-                      className="me-2"
-                      onClick={() => handleDeleteTodo(todo.id)}
-                    />
-                  </div>
-                </li>
-              ))}
-          </>
-        )}
-      </ul>
-
-      {/* Completed Todo List */}
-      <ul className="list-group list-group-flush mt-3">
-        {todos.filter((todo) => todo.status === "Completed").length === 0 ? (
-          <h3>No completed tasks yet.</h3>
-        ) : (
-          <>
-            <h3>Completed Tasks</h3>
-            {todos
-              .filter((todo) => todo.status === "Completed")
-              .map((todo) => (
-                <li
-                  key={todo.id}
-                  className={`list-group-item d-flex justify-content-between align-items-center`}
-                >
-                  <div>
-                    <input
-                      type="checkbox"
-                      checked={todo.status === "Completed"}
-                      onChange={() => handleToggleComplete(todo.id)}
-                      className="me-2"
-                    />
-                    <span
-                      onClick={() => handleShowTodo(todo)} // Pass the todo to the function
-                      style={{ textDecoration: "line-through" }}
-                    >
-                      {todo.title}
-                    </span>
-                  </div>
-                  <div>
-                    <FontAwesomeIcon
-                      icon={faEdit}
-                      className="me-2"
-                      onClick={() => handleEditTodo(todo)}
-                    />
-                    <FontAwesomeIcon
-                      icon={faTrash}
-                      className="me-2"
-                      onClick={() => handleDeleteTodo(todo.id)}
-                    />
-                  </div>
-                </li>
-              ))}
-          </>
-        )}
-      </ul>
     </div>
   );
 }
