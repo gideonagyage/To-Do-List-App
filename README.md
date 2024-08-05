@@ -74,13 +74,13 @@ The `TodoListApp` component is the main component that handles the following:
 
 ## Live Demo
 
-Check out the live demo [here](https://gideon-agyage.web.app/).
+Check out the live demo [here](https://to-do-list-app-coral-pi.vercel.app/).
 
 ## Key Concepts
 
-1. **State Management**: Managing the data and UI state of your React application.
-2. **Event Handling**: Responding to user interactions with your application.
-3. **List Rendering**: Dynamically rendering lists of data in your React application.
+1. **State Management**: Managing the data and UI state of the React application.
+2. **Event Handling**: Responding to user interactions with the application.
+3. **List Rendering**: Dynamically rendering lists of data in the React application.
 
 ## Contributing
 
